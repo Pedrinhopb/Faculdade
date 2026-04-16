@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área da Empresa - BrandQRAuth</title>
+    <link rel="stylesheet" href="../styles/global.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">BrandQRAuth</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Início</a></li>
+                <li><a href="#" id="logoutBtn">Sair</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Área da Empresa</h1>
+            <p>Gerencie seus produtos</p>
+        </div>
+
+        <div class="dashboard-content">
+            <button id="cadastroProdutoBtn" class="btn btn-primary">+ Novo Produto</button>
+            
+            <div id="produtosList" class="produtos-grid"></div>
+        </div>
+    </div>
+
+    <!-- Modal para Cadastro de Produto -->
+    <div id="modalProduto" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Cadastrar Novo Produto</h2>
+            
+            <form id="produtoForm">
+                <div class="form-group">
+                    <label for="nomeProduto">Nome do Produto:</label>
+                    <input type="text" id="nomeProduto" placeholder="Ex: Bolsa Gucci Bamboo Handle" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Cadastrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Gerar Etiqueta -->
+    <div id="modalEtiqueta" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="qr-label-header">
+                <h2>Etiqueta do Produto</h2>
+                <img src="../images/logo_name.png" alt="BrandQRAuth" class="qr-label-logo" />
+            </div>
+
+            <div class="produto-info">
+                <strong>Nome do Produto:</strong>
+                <div id="qrProdutoNome" class="qr-produto-nome"></div>
+            </div>
+
+            <div class="produto-info">
+                <strong>Empresa:</strong>
+                <div id="qrProdutoEmpresa" class="qr-produto-empresa"></div>
+            </div>
+
+            <div class="qr-container">
+                <img id="qrCodeImage" src="" alt="QR Code do Produto" />
+            </div>
+
+            <div class="produto-info">
+                <strong>Código do Produto:</strong>
+                <code id="qrProdutoCodigo"></code>
+            </div>
+
+            <div class="produto-actions">
+                <button id="downloadEtiquetaBtn" class="btn btn-tertiary btn-small">Baixar Etiqueta</button>
+                <button id="copyCodeBtn" class="btn btn-secondary btn-small">Copiar Código</button>
+                <button id="closeLabelBtn" class="btn btn-primary btn-small">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/storage.js"></script>
+    <script src="../scripts/tracking.js"></script>
+    <script src="../scripts/empresa.js"></script>
+</body>
+</html>

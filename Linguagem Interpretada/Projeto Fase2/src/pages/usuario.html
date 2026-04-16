@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Usuário - BrandQRAuth</title>
+    <link rel="stylesheet" href="../styles/global.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">BrandQRAuth</div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Início</a></li>
+                <li><a href="#" id="logoutBtn">Sair</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Meus Produtos</h1>
+            <p id="usuarioEmail"></p>
+        </div>
+
+        <div class="dashboard-buttons">
+            <button id="transferirProdutoBtn" class="btn btn-secondary">↔ Transferir Produto</button>
+        </div>
+
+        <div id="produtosList" class="produtos-grid"></div>
+    </div>
+
+    <!-- Modal para Transferir Produto -->
+    <div id="modalTransferir" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Transferir Produto</h2>
+            
+            <form id="transferirForm">
+                <div class="form-group">
+                    <label for="codigoTransferencia">Código do Produto:</label>
+                    <input type="text" id="codigoTransferencia" placeholder="Cole o código aqui" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="emailDestinatario">Email do Destinatário:</label>
+                    <input type="email" id="emailDestinatario" placeholder="destinatario@email.com" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Transferir</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../scripts/storage.js"></script>
+    <script src="../scripts/tracking.js"></script>
+    <script src="../scripts/usuario.js"></script>
+</body>
+</html>

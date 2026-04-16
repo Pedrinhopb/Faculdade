@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Produto - BrandQRAuth</title>
+    <link rel="stylesheet" href="../styles/global.css">
+    <!-- QR Code Scanner Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="container-fluid" id="logonavbarverificar"></div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Início</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="verificar-container">
+            <div class="page-header">
+                <h1>Verificar Autenticidade do Produto</h1>
+                <p>Escaneie um QR Code ou insira o código do produto para verificar sua autenticidade</p>
+            </div>
+
+            <!-- Aba 1: Inserir Código Manual -->
+            <div id="aba-manual" class="tab-content active">
+                <form id="formManual" class="verification-form">
+                    <div class="form-group">
+                        <label for="codigoManual">Código do Produto (Hash):</label>
+                        <input 
+                            type="text" 
+                            id="codigoManual" 
+                            placeholder="Ex: PROD-2026-001-ABC123DEF456"
+                            required
+                        >
+                        <small>Cole o código completo do produto aqui</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">
+                        Verificar Produto
+                    </button>
+                </form>
+            </div>
+
+            <!-- Aba 2: Escanear QR Code -->
+            <div id="aba-scanner" class="tab-content">
+                <div class="scanner-section">
+                    <div class="camera-container">
+                        <video id="cameraVideo" autoplay playsinline></video>
+                        <canvas id="cameraCanvas" style="display:none;"></canvas>
+                        <div class="scanner-overlay">
+                            <div class="qr-frame"></div>
+                        </div>
+                    </div>
+
+                    <div class="scanner-controls">
+                        <button type="button" id="btnIniciarScanner" class="btn btn-primary btn-full" onclick="iniciarScanner()">
+                            Ler QR Code
+                        </button>
+                        <button type="button" id="btnPararScanner" class="btn btn-danger btn-full" onclick="pararScanner()" style="display:none;">
+                            Parar Câmera
+                        </button>
+                    </div>
+
+                    <p class="scanner-hint">Aponte a câmera para o QR Code do produto</p>
+                </div>
+            </div>
+
+            <!-- Resultado da Verificação -->
+            <div id="resultado" class="modal resultado-container" onclick="if(event.target === this) fecharResultado()" style="display:none;">
+                <div class="modal-content resultado-modal-content">
+                    <span class="close" onclick="fecharResultado()">&times;</span>
+                    <div id="resultadoProduto" class="resultado-produto"></div>
+                </div>
+            </div>
+
+            <!-- Mensagem de Erro -->
+            <div id="mensagem" class="mensagem" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="../scripts/storage.js"></script>
+    <script>
+        let videoStream = null;
+        let scanningActive = false;
+
+        // Trocar de aba
+        function mudarAba(aba) {
+            // Remover aba ativa
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Adicionar aba ativa
+            document.getElementById(`aba-${aba}`).classList.add('active');
+            event.target.classList.add('active');
+
+            // Se mudar para scanner, parar qualquer scanning anterior
+            if (aba === 'scanner') {
+                document.getElementById('resultado').style.display = 'none';
+                document.getElementById('mensagem').textContent = '';
+                document.getElementById('mensagem').className = 'mensagem';
+            }
+        }
+
+        // Verificação Manual
+        document.getElementById('formManual').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const codigo = document.getElementById('codigoManual').value.trim().toUpperCase();
+
+            if (!codigo) {
+                mostrarMensagem('Insira um código válido', 'erro');
+                return;
+            }
+
+            verificarProduto(codigo);
+            document.getElementById('codigoManual').value = '';
+        });
+
+        // Iniciar Scanner
+        function iniciarScanner() {
+            const video = document.getElementById('cameraVideo');
+            const btnIniciar = document.getElementById('btnIniciarScanner');
+            const btnParar = document.getElementById('btnPararScanner');
+
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment' // Câmera traseira
+                    }
+                })
+                .then(stream => {
+                    videoStream = stream;
+                    video.srcObject = stream;
+                    scanningActive = true;
+                    btnIniciar.style.display = 'none';
+                    btnParar.style.display = 'block';
+
+                    // Iniciar leitura de QR Code
+                    lerQRCode();
+                })
+                .catch(error => {
+                    console.error('Erro ao acessar câmera:', error);
+                    mostrarMensagem('Não foi possível acessar a câmera. Verifique as permissões.', 'erro');
+                });
+            } else {
+                mostrarMensagem('Seu navegador não suporta acesso à câmera', 'erro');
+            }
+        }
+
+        function pararScanner() {
+            const btnIniciar = document.getElementById('btnIniciarScanner');
+            const btnParar = document.getElementById('btnPararScanner');
+
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+
+            scanningActive = false;
+            btnIniciar.style.display = 'block';
+            btnParar.style.display = 'none';
+            document.getElementById('cameraVideo').srcObject = null;
+        }
+
+        // Ler QR Code
+        function lerQRCode() {
+            const video = document.getElementById('cameraVideo');
+            const canvas = document.getElementById('cameraCanvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            if (scanningActive) {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                if (code) {
+                    // QR Code detectado
+                    const codigoExtraido = code.data.trim().toUpperCase();
+                    pararScanner();
+                    verificarProduto(codigoExtraido);
+                } else {
+                    // Continuar procurando
+                    requestAnimationFrame(lerQRCode);
+                }
+            }
+        }
+
+        // Verificar Produto
+        function verificarProduto(codigo) {
+            const produto = storage.obterProdutoPorCodigo(codigo);
+            const container = document.getElementById('resultado');
+            const resultadoDiv = document.getElementById('resultadoProduto');
+
+            if (!produto) {
+                resultadoDiv.innerHTML = `
+                    <div class="resultado-status erro">
+                        <h3>Produto Não Encontrado</h3>
+                        <p>O código "${codigo}" não foi encontrado em nosso sistema.</p>
+                    </div>
+                `;
+                container.style.display = 'block';
+                return;
+            }
+
+            // Obter informações da empresa
+            const empresa = storage.obterUsuarioPorEmail(produto.empresa);
+            const dono = produto.dono ? storage.obterUsuarioPorEmail(produto.dono) : null;
+            const statusProduto = produto.dono ? 'Transferido' : 'Disponível';
+            const corStatus = produto.dono ? 'warning' : 'success';
+
+            // Gerar URL do QR Code
+            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(produto.codigo)}`;
+
+            resultadoDiv.innerHTML = `
+                <div class="resultado-status sucesso">
+                    <div class="resultado-header">
+                        <h3>Produto Verificado</h3>
+                        <img src="../images/logo_name.png" alt="BrandQRAuth" class="resultado-logo">
+                    </div>
+
+                    <div class="resultado-main">
+                        <div class="resultado-section">
+                            <h4>Produto</h4>
+                            <p class="resultado-item"><strong>Nome:</strong> ${produto.nome}</p>
+                            <p class="resultado-item"><strong>Marca:</strong> ${empresa ? (empresa.empresa || empresa.email) : produto.empresa}</p>
+                            <p class="resultado-item"><strong>Código:</strong> <span class="codigo-monoespacado">${produto.codigo}</span></p>
+                        </div>
+
+                        <div class="resultado-section">
+                            <h4>Proprietário Atual</h4>
+                            ${produto.dono ? `
+                                <p class="resultado-item"><strong>Nome:</strong> ${dono ? dono.nome : 'Usuário'}</p>
+                                <p class="resultado-item"><strong>Email:</strong> ${maskEmail(produto.dono)}</p>
+                                <p class="resultado-item"><strong>CPF/CNPJ:</strong> ${maskCpfCnpj(dono?.cpfCnpj || '') || 'N/A'}</p>
+                            ` : `
+                                <p class="resultado-item">Disponível (sem proprietário)</p>
+                            `}
+                        </div>
+                    </div>
+
+                    <div class="resultado-section resultado-detail">
+                        <h4>Detalhamento / Histórico</h4>
+                        <p class="resultado-item"><strong>Data de criação:</strong> ${new Date(produto.dataCriacao).toLocaleDateString('pt-BR')} ${new Date(produto.dataCriacao).toLocaleTimeString('pt-BR')}</p>
+                        ${produto.dono ? `
+                            <p class="resultado-item"><strong>Transferido para:</strong> ${dono ? dono.nome : 'Usuário'} (${maskEmail(produto.dono)})</p>
+                            <p class="resultado-item"><strong>Transferência:</strong> ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}</p>
+                        ` : `
+                            <p class="resultado-item">Nenhuma transferência registrada ainda.</p>
+                        `}
+                    </div>
+
+                    <div class="resultado-acoes">
+                        <button type="button" class="btn btn-tertiary btn-full" onclick="novaVerificacao()">
+                            Verificar Outro Produto
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.style.display = 'block';
+        }
+
+        function fecharResultado() {
+            const resultado = document.getElementById('resultado');
+            resultado.style.display = 'none';
+        }
+
+        // Copiar Código
+        function copiarCodigo(codigo) {
+            navigator.clipboard.writeText(codigo).then(() => {
+                mostrarMensagem('Código copiado para a área de transferência!', 'sucesso');
+            }).catch(() => {
+                mostrarMensagem('Erro ao copiar código', 'erro');
+            });
+        }
+
+        // Nova Verificação
+        function novaVerificacao() {
+            document.getElementById('resultado').style.display = 'none';
+            document.getElementById('mensagem').textContent = '';
+            document.getElementById('mensagem').className = 'mensagem';
+            document.getElementById('codigoManual').value = '';
+            document.getElementById('codigoManual').focus();
+        }
+
+        // Calcular Tempo Decorrido
+        function calcularTempoDecorrido(data) {
+            const agora = new Date();
+            const diferenca = agora - data;
+            const segundos = Math.floor(diferenca / 1000);
+            const minutos = Math.floor(segundos / 60);
+            const horas = Math.floor(minutos / 60);
+            const dias = Math.floor(horas / 24);
+
+            if (dias > 0) return `${dias} dia${dias > 1 ? 's' : ''} atrás`;
+            if (horas > 0) return `${horas} hora${horas > 1 ? 's' : ''} atrás`;
+            if (minutos > 0) return `${minutos} minuto${minutos > 1 ? 's' : ''} atrás`;
+            return 'Agora mesmo';
+        }
+
+        function maskEmail(email) {
+            if (!email || !email.includes('@')) return email || '';
+            const [local, domain] = email.split('@');
+            const localStart = local.slice(0, 3);
+            const localEnd = local.length > 3 ? local.slice(-1) : '';
+            const maskedLocal = local.length <= 4 ? localStart + '*'.repeat(Math.max(1, local.length - localStart.length)) : `${localStart}***${localEnd}`;
+
+            const domainParts = domain.split('.');
+            const maskedDomain = domainParts.map(part => '*'.repeat(part.length)).join('.');
+
+            return `${maskedLocal}@${maskedDomain}`;
+        }
+
+        function maskCpfCnpj(cpfCnpj) {
+            if (!cpfCnpj) return '';
+            // Remove all non-digits
+            const digits = cpfCnpj.replace(/\D/g, '');
+            if (digits.length === 11) {
+                // CPF: 123.456.789-00 -> 123.***.***-00
+                return `${digits.slice(0, 3)}.***.***-${digits.slice(-2)}`;
+            } else if (digits.length === 14) {
+                // CNPJ: 12.345.678/0001-90 -> 12.***.***/****-**
+                return `${digits.slice(0, 2)}.***.***/****-${digits.slice(-2)}`;
+            }
+            return cpfCnpj; // fallback
+        }
+
+        // Mostrar Mensagem
+        function mostrarMensagem(texto, tipo) {
+            const mensagem = document.getElementById('mensagem');
+            mensagem.textContent = texto;
+            mensagem.className = `mensagem ${tipo}`;
+
+            if (tipo === 'sucesso') {
+                setTimeout(() => {
+                    mensagem.className = 'mensagem';
+                }, 3000);
+            }
+        }
+
+        // Focar no input ao carregar
+        document.getElementById('codigoManual').focus();
+    </script>
+    <script src="../scripts/script.js"></script>
+</body>
+</html>

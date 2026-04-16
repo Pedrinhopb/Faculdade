@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Brand QR Auth</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="src/styles/global.css">
+    <script crossOrigin src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script crossOrigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <!-- barra de navegação -->
+
+    <nav class="navbar navbar-expand-lg gradient-roxo ">
+        <div class="container-fluid">
+            <nav class="navbar">
+                <div class="container-fluid" id="logonavbar"></div>
+            </nav>
+            <button class="navbar-toggler bg-white" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse navtext " id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto px-5 d-flex flex-column flex-lg-row gap-0 gap-lg-2">
+                    <li class="nav-item" id="navbar-1">
+                        <a class="nav-link active text-white" aria-current="page" href="./index.html">Início</a>
+                    </li>
+                    <li class="nav-item" id="navbar-2">
+                        <a href="src/pages/login.html" class="btn btn-primary btn-small">Área Empresa</a>
+                    </li>
+                    <li class="nav-item" id="navbar-3">
+                        <a href="src/pages/login.html" class="btn btn-secondary btn-small">Área Usuário</a>
+                    </li> 
+                    <li class="nav-item" id="navbar-4">
+                        <a href="src/pages/verificar.html" class="btn btn-tertiary btn-small">Verificar Produto</a>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+    <!-- fim da barra de navegação -->
+     
+    
+    <!-- inicio dos banners -->
+    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active" id="banner1">
+            </div>
+            <div class="carousel-item" id="banner2">
+            </div>
+            <div class="carousel-item" id="banner3">
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
+            data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
+            data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+    <!-- fim dos banners -->
+
+
+     <!-- O que a empresa faz -->
+    <section class="about-section">
+        <div class="about-content">
+            <div class="about-text" id="about-text">
+                
+            </div>
+            <div class="about-image">
+                <div id="qrcodebackground">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <!-- Soluções para Empresas - Carrossel -->
+    <section class="solutions-section">
+        <div class="container">
+            <h2 class="section-title">Soluções para Empresas</h2>
+            <p class="section-subtitle">Explore como a AuthProduct transforma a gestão de produtos na sua empresa</p>
+            
+            <div class="carousel-container">
+                <button class="carousel-btn prev" onclick="mudarSlide(-1)">❮</button>
+                
+                <div class="carousel-wrapper">
+                    <div class="carousel" id="carousel">
+                        <!-- Slide 1 -->
+                        <div class="carousel-slide">
+                            <div class="slide-content">
+                                <div class="slide-icon">
+                                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="50" cy="50" r="40" fill="#6366f1" opacity="0.2"/>
+                                        <path d="M35 50 L45 60 L65 40" stroke="#6366f1" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <rect x="30" y="30" width="40" height="40" fill="none" stroke="#6366f1" stroke-width="2" rx="4"/>
+                                    </svg>
+                                </div>
+                                <h3>Gestão de Produtos</h3>
+                                <p>Controle total sobre seus produtos com identificadores únicos e códigos QR gerados automaticamente. Mantenha um registro completo de cada item.</p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 2 -->
+                        <div class="carousel-slide">
+                            <div class="slide-content">
+                                <div class="slide-icon">
+                                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="50" cy="50" r="40" fill="#ec4899" opacity="0.2"/>
+                                        <path d="M30 60 Q50 30 70 60" stroke="#ec4899" stroke-width="4" fill="none" stroke-linecap="round"/>
+                                        <circle cx="50" cy="70" r="4" fill="#ec4899"/>
+                                    </svg>
+                                </div>
+                                <h3>Rastreamento em Tempo Real</h3>
+                                <p>Acompanhe a jornada de cada produto da criação até o cliente final. Monitore transferências e mudanças de propriedade instantaneamente.</p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 3 -->
+                        <div class="carousel-slide">
+                            <div class="slide-content">
+                                <div class="slide-icon">
+                                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="50" cy="50" r="40" fill="#10b981" opacity="0.2"/>
+                                        <path d="M30 50 L50 30 L70 50 L70 70 Q50 80 30 70 Z" stroke="#10b981" stroke-width="2" fill="none"/>
+                                        <circle cx="50" cy="55" r="5" fill="#10b981"/>
+                                    </svg>
+                                </div>
+                                <h3>Segurança e Confiança</h3>
+                                <p>Garanta a autenticidade dos seus produtos com um sistema seguro e confiável. Reduza fraudes e aumente a confiança dos clientes.</p>
+                            </div>
+                        </div>
+
+                        <!-- Slide 4 -->
+                        <div class="carousel-slide">
+                            <div class="slide-content">
+                                <div class="slide-icon">
+                                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="50" cy="50" r="40" fill="#f59e0b" opacity="0.2"/>
+                                        <path d="M40 35 L50 25 L60 35 L60 65 L40 65 Z" stroke="#f59e0b" stroke-width="2" fill="none"/>
+                                        <line x1="50" y1="40" x2="50" y2="60" stroke="#f59e0b" stroke-width="2"/>
+                                        <circle cx="50" cy="50" r="3" fill="#f59e0b"/>
+                                    </svg>
+                                </div>
+                                <h3>Relatórios Detalhados</h3>
+                                <p>Gere relatórios completos sobre o histórico de seus produtos. Analise dados e tome decisões informadas para otimizar sua operação.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="carousel-btn next" onclick="mudarSlide(1)">❯</button>
+            </div>
+
+            <div class="carousel-dots" id="dots"></div>
+        </div>
+    </section>
+
+    <!-- Solução para Usuários - Smartphone com QR Code -->
+    <section class="users-section">
+        <div class="users-content">
+            <div class="smartphone-mockup">
+                <div class="phone-frame">
+                    <div class="phone-screen">
+                        <div class="phone-header" id="logo-cell">
+                        </div>
+                        <div class="phone-content">
+                            <div class="qr-scanner" id="qrcode-cell">
+                            </div>
+                            <p class="phone-text">Escaneie o QR Code</p>
+                        </div>
+                        <div class="phone-home"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="users-text">
+                <h2>Solução para Usuários</h2>
+                <p>Com o BrandQRAuth, você pode:</p>
+                <div class="users-features">
+                    <div class="feature-item">
+                        <div>
+                            <h4>Escanear QR Codes</h4>
+                            <p>Use seu smartphone para escanear e verificar a autenticidade de qualquer produto instantaneamente.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div>
+                            <h4>Verificar Autenticidade</h4>
+                            <p>Confirme que o produto é original e veja seu histórico completo de transferências.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div>
+                            <h4>Transferir Produtos</h4>
+                            <p>Transfira seus produtos para outros usuários de forma segura e rastreável.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div>
+                            <h4>Segurança Total</h4>
+                            <p>Todos os dados são armazenados com segurança, garantindo privacidade e proteção.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2026 BrandQRAuth. Todos os direitos reservados.</p>
+    </footer>
+
+
+    <script src="src/scripts/carousel.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script type="text/babel" src="src/scripts/script.js"></script> 
+</body>
+</html>
