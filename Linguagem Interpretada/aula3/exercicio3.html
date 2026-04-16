@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <script>
+
+        let pessoas = [];
+
+        function pessoa(valor) {
+
+            let nome = prompt("cliente" + valor + "\nDigite seu nome: ");
+            let sobrenome = prompt("cliente" + valor + "\nDigite seu sobrenome: ");
+            let ano = prompt("cliente" + valor + "\nDigite seu ano de nascimento: ");
+                
+            let idade = 2026 - ano; 
+            
+            let pessoa = {
+                nome: nome,
+                sobrenome: sobrenome,
+                idade: idade
+            };
+
+            return pessoa; 
+        }
+
+        for (let i = 1; i <= 5; i++) {
+            let resultado = pessoa(i);
+            pessoas.push(resultado); 
+        }
+        
+        let output = document.createElement('div');
+        pessoas.forEach(element => {
+            output.innerHTML += "Ola " + element.nome + " " + element.sobrenome + " sua idade é " + element.idade + "<br>";
+        });
+        document.body.appendChild(output);
+        
+    </script>
+</body>
+</html>

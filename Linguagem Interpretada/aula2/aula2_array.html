@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script>
+
+        // Começando um array
+        var listaDeFrutas = ["maças", "uvas", "bananas", "abacaxi", "morangos"];
+        console.log(listaDeFrutas);
+
+        // Acessando um item do array
+        var primeiroItem = listaDeFrutas[0];
+        console.log(primeiroItem);
+
+        // Acessando um elemento pelo seu indice
+        var descobrirPosicao = listaDeFrutas.indexOf("bananas");
+        console.log(descobrirPosicao);
+
+        // Adicionando elemento ao final do array 
+        listaDeFrutas.push("laranjas");
+        console.log(listaDeFrutas);
+
+        // Adicionando elemento ao começo do array 
+        listaDeFrutas.unshift("laranjas");
+        console.log(listaDeFrutas);
+
+        // Removendo elemento do inicio
+        listaDeFrutas.shift();
+        console.log(listaDeFrutas);
+
+        // Removendo elemento do final
+        listaDeFrutas.pop();
+        console.log(listaDeFrutas);
+
+        // Removendo um elemento específico
+        var removendoPosicao = listaDeFrutas.indexOf("abacaxi");
+        listaDeFrutas.splice(removendoPosicao,1);
+        console.log(listaDeFrutas);
+
+        // Inserido um elemento em uma posição específica
+        const myArray = ["a","b","c"];
+        const elementoInserido = "x";
+        const posicao = 1;
+        myArray.splice(posicao, 0, elementoInserido);
+        console.log(myArray);
+
+    </script>
+
+</head>
+<body>
+    
+</body>
+</html>

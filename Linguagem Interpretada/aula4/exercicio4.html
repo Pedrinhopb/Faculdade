@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .azul{
+            color: blue;
+        }
+
+        .vermelho{
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    
+    <ul>
+        <li class="azul">Azul</li>
+        <li class="vermelho">Vermelho</li>
+        <li class="azul">Azul</li>
+        <li class="vermelho">Vermelho</li>
+        <li class="azul">Azul</li>
+        <li class="vermelho">Vermelho</li>
+    </ul>
+
+    <script>
+        let elementoAzul = document.querySelectorAll(".azul");
+        elementoAzul.forEach(element =>{
+            element.style.color = "red";
+        });
+
+        let elementoVermelho = document.querySelectorAll(".vermelho");
+        elementoVermelho.forEach(element => {
+            element.style.color = "blue";
+        });
+    </script>
+</body>
+</html>

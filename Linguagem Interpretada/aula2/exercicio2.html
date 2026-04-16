@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>  
+
+</head>
+<body>
+    
+    <h2> Adicionar Amigos</h2>
+    <input type="text" id="nome" placeholder="Digite um nome de amigo: ">
+    <button onclick="adicionar()"> Adicionar </button>
+
+    <ul id="lista"></ul>
+
+    <script>
+        let amigos = [];
+
+        function adicionar(){
+            let input = document.getElementById("nome");
+            let nome = input.value;
+
+            if (nome === ""){
+                alert("Digite um nome!");
+                return;
+            }
+
+            amigos.push(nome);
+
+            let lista = document.getElementById("lista");
+            let li = document.createElement("li");
+            li.textContent = nome;
+
+            lista.appendChild(li);
+
+            input.value = "";
+        }
+    </script>
+</body>
+</html>
