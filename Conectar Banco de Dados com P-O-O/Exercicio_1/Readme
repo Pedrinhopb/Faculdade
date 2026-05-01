@@ -1,0 +1,122 @@
+# 📚 Sistema de Biblioteca (MySQL)
+
+Este projeto consiste na modelagem e implementação de um banco de dados para gerenciamento de uma biblioteca, utilizando **MySQL**.
+
+---
+
+## 🧠 Objetivo
+
+Criar um banco de dados relacional capaz de gerenciar:
+
+* Autores
+* Livros
+* Alunos
+* Empréstimos
+
+Permitindo operações como cadastro, consultas, atualizações e análises de dados.
+
+---
+
+## 🗂️ Estrutura do Banco
+
+O banco de dados é composto por 4 tabelas principais:
+
+### 👨‍🏫 Autores
+
+* id_autor (PK)
+* nome
+* nacionalidade
+
+### 📖 Livros
+
+* id_livro (PK)
+* titulo
+* ano_publicacao
+* id_autor (FK)
+
+### 🎓 Alunos
+
+* id_aluno (PK)
+* nome
+* email (UNIQUE)
+* data_nascimento
+
+### 🔄 Emprestimos
+
+* id_emprestimo (PK)
+* id_aluno (FK)
+* id_livro (FK)
+* data_emprestimo
+* data_devolucao
+
+---
+
+## 🔗 Relacionamentos
+
+* Um **autor** pode ter vários livros (1:N)
+* Um **livro** pertence a um autor
+* Um **aluno** pode realizar vários empréstimos
+* Um **empréstimo** relaciona um aluno a um livro
+
+---
+
+## ⚙️ Funcionalidades Implementadas
+
+✔️ Criação do banco de dados
+✔️ Criação de tabelas com chaves primárias e estrangeiras
+✔️ Inserção de dados (autores, livros, alunos e empréstimos)
+✔️ Consultas SQL com:
+
+* SELECT
+* WHERE
+* LIKE
+* ORDER BY
+* JOIN
+* GROUP BY
+
+✔️ Atualizações com UPDATE
+✔️ Consultas avançadas (desafios)
+
+---
+
+## 🧪 Exemplos de Consultas
+
+### 📌 Listar livros de um autor
+
+```sql
+SELECT titulo 
+FROM Livros
+WHERE id_autor = 1;
+```
+
+### 📌 Alunos com empréstimos pendentes
+
+```sql
+SELECT A.nome, L.titulo
+FROM Emprestimos E
+JOIN Alunos A ON E.id_aluno = A.id_aluno
+JOIN Livros L ON E.id_livro = L.id_livro
+WHERE E.data_devolucao IS NULL;
+```
+
+### 📌 Top 3 alunos com mais empréstimos
+
+```sql
+SELECT A.nome, COUNT(*) AS total
+FROM Emprestimos E
+JOIN Alunos A ON E.id_aluno = A.id_aluno
+GROUP BY A.nome
+ORDER BY total DESC
+LIMIT 3;
+```
+
+---
+
+## 🛠️ Tecnologias
+
+* MySQL
+* SQL
+
+
+
+---
