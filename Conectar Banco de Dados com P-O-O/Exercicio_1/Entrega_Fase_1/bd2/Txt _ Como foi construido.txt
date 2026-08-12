@@ -1,0 +1,1002 @@
+CREATE DATABASE sistema_academico_2;
+
+------------------------------------------
+
+USE sistema acadêmico_2;
+
+------------------------------------------
+
+CREATE TABLE Cursos(
+	ID_Curso INT PRIMARY KEY AUTO_INCREMENT,
+    NomeCurso VARCHAR(120),
+    Coordenador VARCHAR(120),
+    CargaHorariaTotal INT CHECK (CargaHorariaTotal > 0)
+);
+
+------------------------------------------
+
+CREATE TABLE Alunos(
+	ID_Aluno INT PRIMARY KEY AUTO_INCREMENT,
+    Nome VARCHAR(120),
+    CPF CHAR(11) UNIQUE,
+    Email VARCHAR(120) UNIQUE,
+    DataNascimento DATE,
+    ID_Curso INT,
+    FOREIGN KEY (ID_Curso) REFERENCES Cursos (ID_Curso)
+    ON UPDATE CASCADE ON DELETE RESTRICT
+);
+
+------------------------------------------
+
+CREATE TABLE Professores (
+	ID_Professor INT PRIMARY KEY AUTO_INCREMENT,
+    Nome VARCHAR(120),
+    Titulacao VARCHAR(120),
+    Email VARCHAR(120) UNIQUE
+);
+
+------------------------------------------
+
+CREATE TABLE Curriculos (
+	ID_Curriculo INT PRIMARY KEY AUTO_INCREMENT,
+    ID_Curso INT,
+    AnoInicio YEAR,
+    Versao VARCHAR(100),
+    FOREIGN KEY (ID_Curso) REFERENCES Cursos(ID_Curso)
+    ON UPDATE CASCADE ON DELETE RESTRICT
+);
+
+------------------------------------------
+
+CREATE TABLE Disciplinas (
+	ID_Disciplina INT PRIMARY KEY AUTO_INCREMENT,
+    NomeDisciplina VARCHAR(120),
+    CargaHoraria INT CHECK (CargaHoraria > 0)
+);
+
+------------------------------------------
+
+CREATE TABLE Disciplinas_Curriculo (
+	ID_Curriculo INT,
+    ID_Disciplina INT,
+    PeriodoIdeal INT,
+    PRIMARY KEY (ID_Curriculo, ID_Disciplina),
+    FOREIGN KEY (ID_Curriculo) REFERENCES Curriculos (ID_Curriculo) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (ID_Disciplina) REFERENCES Disciplinas (ID_Disciplina) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+------------------------------------------
+
+CREATE TABLE PreRequisitos (
+    ID_Disciplina_Principal INT,
+    ID_Disciplina_PreRequisito INT,
+    PRIMARY KEY (ID_Disciplina_Principal, ID_Disciplina_PreRequisito),
+    FOREIGN KEY (ID_Disciplina_Principal) REFERENCES Disciplinas (ID_Disciplina) ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (ID_Disciplina_PreRequisito) REFERENCES Disciplinas (ID_Disciplina) ON UPDATE CASCADE ON DELETE RESTRICT
+);
+
+------------------------------------------
+
+CREATE TABLE Semestres (
+	ID_Semestre INT PRIMARY KEY AUTO_INCREMENT,
+    CodigoSemestre VARCHAR(10) UNIQUE,
+    AbertoParaMatricula BOOLEAN
+);
+
+CREATE TABLE Turmas (
+	ID_Turma INT PRIMARY KEY AUTO_INCREMENT,
+    ID_Disciplina INT,
+    ID_Professor INT,
+    ID_Semestre INT,
+    MaxVagas INT CHECK (MaxVagas > 0),
+    VagasOcupadas INT DEFAULT 0,
+    FOREIGN KEY (ID_Disciplina) REFERENCES Disciplinas (ID_Disciplina) ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (ID_Professor) REFERENCES Professores (ID_Professor) ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (ID_Semestre) REFERENCES Semestres (ID_Semestre) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT Checar_Vagas_Validas CHECK (VagasOcupadas <= MaxVagas AND VagasOcupadas >= 0)
+);
+
+------------------------------------------
+
+CREATE TABLE Matriculas (
+	ID_Matricula INT PRIMARY KEY AUTO_INCREMENT,
+    ID_Aluno INT UNIQUE,
+    ID_Turma INT UNIQUE,
+    Status VARCHAR(10) DEFAULT 'Cursando',
+    NotaFinal DECIMAL(4,2),
+    FOREIGN KEY (ID_Aluno) REFERENCES Alunos (ID_Aluno) ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (ID_Turma) REFERENCES Turmas (ID_Turma) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT Checar_Status_Matricula CHECK (Status IN('Cursando', 'Aprovado', 'Reprovado','Trancado')),
+    CONSTRAINT Checar_Nota_Status CHECK (NotaFinal IS NULL OR Status <> 'Cursando')
+);
+
+------------------------------------------
+
+CREATE TABLE HistoricoAluno (
+	ID_Historico INT PRIMARY KEY AUTO_INCREMENT,
+    ID_Aluno INT,
+    ID_Disciplina INT,
+    NotaFinal DECIMAL(4,2),
+    Status VARCHAR(10),
+    DataConclusao DATE,
+    FOREIGN KEY (ID_Aluno) REFERENCES Alunos (ID_Aluno) ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (ID_Disciplina) REFERENCES Disciplinas (ID_Disciplina) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT Checar_Historico_Status CHECK (Status IN('Aprovado', 'Reprovado'))
+);
+
+------------------------------------------
+
+CREATE TABLE Usuarios (
+	ID_Usuario INT PRIMARY KEY AUTO_INCREMENT,
+    Nome VARCHAR(120),
+    Email VARCHAR(120) UNIQUE,
+    TipoUsuario VARCHAR(120),
+    SenhaHash VARCHAR(255),
+    CONSTRAINT Checar_Tipo_Usuario CHECK (TipoUsuario IN('Admin', 'Secretaria', 'Professor', 'Aluno'))
+);
+
+------------------------------------------
+
+CREATE TABLE LogsSistema (
+	ID_Log INT PRIMARY KEY AUTO_INCREMENT,
+    Usuario VARCHAR(120),
+    Acao VARCHAR(60),
+    TabelaAfetada VARCHAR(60),
+    DataHora DATETIME DEFAULT CURRENT_TIMESTAMP,
+    Descricao TEXT
+);
+
+------------------------------------------
+
+CREATE VIEW vw_BoletimAluno AS
+SELECT
+	a.Nome AS NomeAluno,
+    s.CodigoSemestre AS Semestre,
+    d.NomeDisciplina AS Disciplina,
+    p.Nome AS Professor,
+    m.NotaFinal AS Nota,
+    m.Status AS Status
+FROM Matriculas m
+JOIN Alunos a ON a.ID_Aluno = m.ID_Aluno
+JOIN Turmas t ON t.ID_Turma = m.ID_Turma
+JOIN Disciplinas d ON d.ID_Disciplina = t.ID_Disciplina
+JOIN Professores p ON p.ID_Professor = t.ID_Professor
+JOIN Semestres s ON s.ID_Semestre = t.ID_Semestre;
+
+------------------------------------------
+
+CREATE VIEW vw_TurmasDisponiveis AS
+SELECT
+	s.CodigoSemestre AS Semestre,
+    d.NomeDisciplina AS Disciplina,
+    p.Nome AS Professor,
+    t.MaxVagas AS VagasTotal,
+    t.VagasOcupadas AS VagasOcupadas,
+    (t.MaxVagas - t.VagasOcupadas) AS VagasDisponiveis
+FROM Turmas t
+JOIN Semestres s ON s.ID_Semestre = t.ID_Semestre
+JOIN Disciplinas d ON d.ID_Disciplina = t.ID_Disciplina
+JOIN Professores p ON p.ID_Professor = t.ID_Professor
+WHERE s.AbertoParaMatricula = TRUE 
+AND t.VagasOcupadas < t.MaxVagas;
+
+------------------------------------------
+
+CREATE VIEW vw_DesempenhoTurma AS
+SELECT
+	d.NomeDisciplina AS Disciplina,
+    p.Nome AS Professor,
+	COUNT(m.ID_Matricula) AS TotalAlunos,
+    ROUND(AVG(m.NotaFinal), 2) AS MediaNotas,
+    SUM(m.Status = 'Aprovado') AS TotalAprovados,
+    SUM(m.Status = 'Reprovado') AS TotalReprovados
+FROM Turmas t
+JOIN Disciplinas d ON d.ID_Disciplina = t.ID_Disciplina
+JOIN Professores p ON p.ID_Professor = t.ID_Professor
+JOIN Matriculas m ON m.ID_Turma = t.ID_Turma
+WHERE m.Status IN ('Aprovado', 'Reprovado')
+GROUP BY t.ID_Turma, d.NomeDisciplina, p.Nome;
+
+------------------------------------------
+
+CREATE VIEW vw_LogAuditoria AS
+SELECT
+	ID_Log AS CodigoLog,
+    Usuario AS Usuario,
+    Acao AS Acao,
+    TabelaAfetada AS Tabela,
+    DataHora AS DataHora,
+    Descricao AS Descricao
+FROM LogsSistema
+ORDER BY DataHora DESC
+LIMIT 20;
+
+------------------------------------------
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_RegistrarMatricula(
+    IN p_ID_Aluno INT,
+    IN p_ID_Turma INT
+)
+sp_RegistrarMatricula: BEGIN
+    DECLARE v_SemestreAberto INT;
+    DECLARE v_VagasDisponiveis INT;
+    DECLARE v_ID_Semestre INT;
+    DECLARE v_ID_Disciplina INT;
+    DECLARE v_PreRequisitoPendente INT;
+    DECLARE v_JaMatriculado INT;
+
+    -- Handler de erro → ROLLBACK automático
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        INSERT INTO LogsSistema (Usuario, Acao, TabelaAfetada, Descricao)
+        VALUES (
+            CONCAT('Aluno#', p_ID_Aluno),
+            'ERRO',
+            'Matriculas',
+            'Erro inesperado ao registrar matrícula — transação revertida.'
+        );
+        SELECT 'ERRO: Falha inesperada. Transação revertida.' AS Mensagem;
+    END;
+
+    -- Busca informações da turma e semestre
+    SELECT  t.ID_Disciplina,
+            t.MaxVagas - t.VagasOcupadas,
+            s.ID_Semestre,
+            s.AbertoParaMatricula
+    INTO    v_ID_Disciplina,
+            v_VagasDisponiveis,
+            v_ID_Semestre,
+            v_SemestreAberto
+    FROM Turmas t
+    JOIN Semestres s ON s.ID_Semestre = t.ID_Semestre
+    WHERE t.ID_Turma = p_ID_Turma;
+
+    -- 1) Semestre está aberto?
+    IF v_SemestreAberto = FALSE THEN
+        SELECT 'ERRO: Semestre não está aberto para matrículas.' AS Mensagem;
+        LEAVE sp_RegistrarMatricula;
+    END IF;
+
+    -- 2) Turma tem vagas?
+    IF v_VagasDisponiveis <= 0 THEN
+        SELECT 'ERRO: Turma sem vagas disponíveis.' AS Mensagem;
+        LEAVE sp_RegistrarMatricula;
+    END IF;
+
+    -- 3) Pré-requisitos cumpridos?
+    SELECT COUNT(*) INTO v_PreRequisitoPendente
+    FROM PreRequisitos pr
+    WHERE pr.ID_Disciplina_Principal = v_ID_Disciplina
+      AND NOT EXISTS (
+            SELECT 1 FROM HistoricoAluno h
+            WHERE h.ID_Aluno      = p_ID_Aluno
+              AND h.ID_Disciplina = pr.ID_Disciplina_PreRequisito
+              AND h.Status        = 'Aprovado'
+      );
+
+    IF v_PreRequisitoPendente > 0 THEN
+        SELECT 'ERRO: Pré-requisito(s) não cumprido(s).' AS Mensagem;
+        LEAVE sp_RegistrarMatricula;
+    END IF;
+
+    -- 4) Já matriculado na mesma disciplina?
+    SELECT COUNT(*) INTO v_JaMatriculado
+    FROM Matriculas m
+    JOIN Turmas t ON t.ID_Turma = m.ID_Turma
+    WHERE m.ID_Aluno = p_ID_Aluno
+      AND t.ID_Disciplina = v_ID_Disciplina
+      AND m.Status = 'Cursando';
+
+    IF v_JaMatriculado > 0 THEN
+        SELECT 'ERRO: Aluno já está matriculado nesta disciplina.' AS Mensagem;
+        LEAVE sp_RegistrarMatricula;
+    END IF;
+
+    -- Todas as validações passaram → inicia transação
+    START TRANSACTION;
+
+        INSERT INTO Matriculas (ID_Aluno, ID_Turma, Status)
+        VALUES (p_ID_Aluno, p_ID_Turma, 'Cursando');
+
+        INSERT INTO LogsSistema (Usuario, Acao, TabelaAfetada, Descricao)
+        VALUES (
+            CONCAT('Aluno#', p_ID_Aluno),
+            'INSERT',
+            'Matriculas',
+            CONCAT('Matrícula registrada — Aluno: ', p_ID_Aluno,
+                   ' | Turma: ', p_ID_Turma)
+        );
+
+    COMMIT;
+
+    SELECT 'OK: Matrícula realizada com sucesso.' AS Mensagem;
+
+END$$
+
+DELIMITER ;
+
+------------------------------------------
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_LancarNotas(
+    IN p_ID_Matricula INT,
+    IN p_NotaFinal DECIMAL(4,2)
+)
+sp_LancarNotas: BEGIN
+    DECLARE v_ID_Aluno INT;
+    DECLARE v_ID_Disciplina INT;
+    DECLARE v_Status VARCHAR(10);
+    DECLARE v_NovoStatus VARCHAR(10);
+
+    -- Handler de erro → ROLLBACK automático
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        INSERT INTO LogsSistema (Usuario, Acao, TabelaAfetada, Descricao)
+        VALUES (
+            'Sistema',
+            'ERRO',
+            'Matriculas',
+            CONCAT('Erro ao lançar nota na matrícula ', p_ID_Matricula,
+                   ' — transação revertida.')
+        );
+        SELECT 'ERRO: Falha inesperada. Transação revertida.' AS Mensagem;
+    END;
+
+    -- Busca informações da matrícula
+    SELECT  m.ID_Aluno,
+            t.ID_Disciplina,
+            m.Status
+    INTO    v_ID_Aluno,
+            v_ID_Disciplina,
+            v_Status
+    FROM Matriculas m
+    JOIN Turmas t ON t.ID_Turma = m.ID_Turma
+    WHERE m.ID_Matricula = p_ID_Matricula;
+
+    -- 1) Matrícula existe?
+    IF v_ID_Aluno IS NULL THEN
+        SELECT 'ERRO: Matrícula não encontrada.' AS Mensagem;
+        LEAVE sp_LancarNotas;
+    END IF;
+
+    -- 2) Status é Cursando?
+    IF v_Status <> 'Cursando' THEN
+        SELECT 'ERRO: Só é possível lançar nota em matrículas com status Cursando.' AS Mensagem;
+        LEAVE sp_LancarNotas;
+    END IF;
+
+    -- 3) Nota válida?
+    IF p_NotaFinal < 0 OR p_NotaFinal > 10 THEN
+        SELECT 'ERRO: Nota deve estar entre 0 e 10.' AS Mensagem;
+        LEAVE sp_LancarNotas;
+    END IF;
+
+    -- 4) Define novo status
+    IF p_NotaFinal >= 7 THEN
+        SET v_NovoStatus = 'Aprovado';
+    ELSE
+        SET v_NovoStatus = 'Reprovado';
+    END IF;
+
+    -- Validações passaram → inicia transação
+    START TRANSACTION;
+
+        UPDATE Matriculas
+        SET NotaFinal = p_NotaFinal,
+            Status = v_NovoStatus
+        WHERE ID_Matricula = p_ID_Matricula;
+
+        INSERT INTO LogsSistema (Usuario, Acao, TabelaAfetada, Descricao)
+        VALUES (
+            'Sistema',
+            'UPDATE',
+            'Matriculas',
+            CONCAT('Nota ', p_NotaFinal, ' lançada — Matrícula: ', p_ID_Matricula,
+                   ' | Status: ', v_NovoStatus)
+        );
+
+    COMMIT;
+
+    SELECT CONCAT('OK: Nota lançada. Aluno ', v_NovoStatus, '.') AS Mensagem;
+
+END$$
+
+DELIMITER ;
+------------------------------------------
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_TrancarMatricula(
+    IN p_ID_Matricula INT,
+    IN p_Usuario VARCHAR(120)
+)
+sp_TrancarMatricula: BEGIN
+    DECLARE v_ID_Turma INT;
+    DECLARE v_Status VARCHAR(10);
+
+    -- Handler de erro → ROLLBACK automático
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        INSERT INTO LogsSistema (Usuario, Acao, TabelaAfetada, Descricao)
+        VALUES (
+            p_Usuario,
+            'ERRO',
+            'Matriculas',
+            CONCAT('Erro ao trancar matrícula ', p_ID_Matricula,
+                   ' — transação revertida.')
+        );
+        SELECT 'ERRO: Falha inesperada. Transação revertida.' AS Mensagem;
+    END;
+
+    -- Busca informações da matrícula
+    SELECT ID_Turma, Status
+    INTO   v_ID_Turma, v_Status
+    FROM Matriculas
+    WHERE ID_Matricula = p_ID_Matricula;
+
+    -- 1) Matrícula existe?
+    IF v_ID_Turma IS NULL THEN
+        SELECT 'ERRO: Matrícula não encontrada.' AS Mensagem;
+        LEAVE sp_TrancarMatricula;
+    END IF;
+
+    -- 2) Status é Cursando?
+    IF v_Status <> 'Cursando' THEN
+        SELECT CONCAT('ERRO: Matrícula com status "', v_Status,
+                      '" não pode ser trancada.') AS Mensagem;
+        LEAVE sp_TrancarMatricula;
+    END IF;
+
+    -- Validações passaram → inicia transação
+    START TRANSACTION;
+
+        UPDATE Matriculas
+        SET Status = 'Trancado'
+        WHERE ID_Matricula = p_ID_Matricula;
+
+        UPDATE Turmas
+        SET VagasOcupadas = VagasOcupadas - 1
+        WHERE ID_Turma = v_ID_Turma;
+
+        INSERT INTO LogsSistema (Usuario, Acao, TabelaAfetada, Descricao)
+        VALUES (
+            p_Usuario,
+            'UPDATE',
+            'Matriculas',
+            CONCAT('Matrícula ', p_ID_Matricula, ' trancada por ', p_Usuario)
+        );
+
+    COMMIT;
+
+    SELECT 'OK: Matrícula trancada com sucesso.' AS Mensagem;
+
+END$$
+
+DELIMITER ;
+------------------------------------------
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_GerarHistoricoAluno(
+    IN p_ID_Aluno INT
+)
+sp_GerarHistoricoAluno: BEGIN
+    DECLARE v_NomeAluno VARCHAR(120);
+    DECLARE v_TotalInserido INT DEFAULT 0;
+
+    -- 1) Aluno existe?
+    SELECT Nome INTO v_NomeAluno
+    FROM Alunos
+    WHERE ID_Aluno = p_ID_Aluno;
+
+    IF v_NomeAluno IS NULL THEN
+        SELECT 'ERRO: Aluno não encontrado.' AS Mensagem;
+        LEAVE sp_GerarHistoricoAluno;
+    END IF;
+
+    -- Inicia transação
+    START TRANSACTION;
+
+        -- 2) Insere no histórico as disciplinas aprovadas
+        --    que ainda não foram registradas
+        INSERT INTO HistoricoAluno
+            (ID_Aluno, ID_Disciplina, NotaFinal, Status, DataConclusao)
+        SELECT
+            m.ID_Aluno,
+            t.ID_Disciplina,
+            m.NotaFinal,
+            m.Status,
+            CURDATE()
+        FROM Matriculas m
+        JOIN Turmas t ON t.ID_Turma = m.ID_Turma
+        WHERE m.ID_Aluno  = p_ID_Aluno
+          AND m.Status    = 'Aprovado'
+          AND NOT EXISTS (
+                SELECT 1
+                FROM HistoricoAluno h
+                WHERE h.ID_Aluno      = m.ID_Aluno
+                  AND h.ID_Disciplina = t.ID_Disciplina
+          );
+
+        -- 3) Quantidade de registros inseridos
+        SET v_TotalInserido = ROW_COUNT();
+
+        -- 4) Registra no log
+        INSERT INTO LogsSistema (Usuario, Acao, TabelaAfetada, Descricao)
+        VALUES (
+            CONCAT('Aluno#', p_ID_Aluno),
+            'INSERT',
+            'HistoricoAluno',
+            CONCAT('Histórico gerado para ', v_NomeAluno,
+                   ' — ', v_TotalInserido, ' disciplina(s) inserida(s).')
+        );
+
+    COMMIT;
+
+    SELECT CONCAT('OK: Histórico gerado. ',
+                  v_TotalInserido, ' disciplina(s) inserida(s) para ',
+                  v_NomeAluno, '.') AS Mensagem;
+
+END$$
+
+DELIMITER ;
+
+------------------------------------------
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_ReabrirPeriodoMatricula(
+    IN p_ID_Semestre INT
+)
+sp_ReabrirPeriodoMatricula: BEGIN
+    DECLARE v_CodigoSemestre VARCHAR(10);
+    DECLARE v_StatusAtual BOOLEAN;
+
+    -- Busca informações do semestre
+    SELECT CodigoSemestre,
+           AbertoParaMatricula
+    INTO   v_CodigoSemestre,
+           v_StatusAtual
+    FROM Semestres
+    WHERE ID_Semestre = p_ID_Semestre;
+
+    -- 1) Semestre existe?
+    IF v_CodigoSemestre IS NULL THEN
+        SELECT 'ERRO: Semestre não encontrado.' AS Mensagem;
+        LEAVE sp_ReabrirPeriodoMatricula;
+    END IF;
+
+    -- 2) Já está aberto?
+    IF v_StatusAtual = TRUE THEN
+        SELECT CONCAT('ERRO: Semestre "', v_CodigoSemestre,
+                      '" já está aberto para matrículas.') AS Mensagem;
+        LEAVE sp_ReabrirPeriodoMatricula;
+    END IF;
+
+    -- Validações passaram → inicia transação
+    START TRANSACTION;
+
+        -- Reabre o semestre
+        UPDATE Semestres
+        SET AbertoParaMatricula = TRUE
+        WHERE ID_Semestre = p_ID_Semestre;
+
+        -- Registra no log
+        INSERT INTO LogsSistema (Usuario, Acao, TabelaAfetada, Descricao)
+        VALUES (
+            'Admin',
+            'UPDATE',
+            'Semestres',
+            CONCAT('Semestre "', v_CodigoSemestre, '" reaberto para matrículas.')
+        );
+
+    COMMIT;
+
+    SELECT CONCAT('OK: Semestre "', v_CodigoSemestre,
+                  '" reaberto para matrículas com sucesso.') AS Mensagem;
+
+END$$
+
+DELIMITER ;
+
+------------------------------------------
+
+DELIMITER $$
+
+CREATE FUNCTION fn_CalcularCoeficienteRendimento(
+    p_ID_Aluno INT
+)
+RETURNS DECIMAL(4,2)
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_CR DECIMAL(4,2);
+
+    SELECT ROUND(
+        SUM(h.NotaFinal * d.CargaHoraria) / SUM(d.CargaHoraria)
+    , 2)
+    INTO v_CR
+    FROM HistoricoAluno h
+    JOIN Disciplinas d ON d.ID_Disciplina = h.ID_Disciplina
+    WHERE h.ID_Aluno = p_ID_Aluno
+      AND h.Status   = 'Aprovado';
+
+    RETURN IFNULL(v_CR, 0.00);
+END$$
+
+DELIMITER ;
+
+------------------------------------------
+
+DELIMITER $$
+
+CREATE FUNCTION fn_ContarDisciplinasPendentes(
+    p_ID_Aluno  INT,
+    p_ID_Curso  INT
+)
+RETURNS INT
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_Pendentes INT;
+
+    SELECT COUNT(*) INTO v_Pendentes
+    FROM Disciplinas_Curriculo dc
+    JOIN Curriculos c ON c.ID_Curriculo = dc.ID_Curriculo
+    WHERE c.ID_Curso = p_ID_Curso
+      AND NOT EXISTS (
+            SELECT 1
+            FROM HistoricoAluno h
+            WHERE h.ID_Aluno = p_ID_Aluno
+              AND h.ID_Disciplina = dc.ID_Disciplina
+              AND h.Status = 'Aprovado'
+      );
+
+    RETURN IFNULL(v_Pendentes, 0);
+END$$
+
+DELIMITER ;
+
+------------------------------------------
+
+DELIMITER $$
+
+CREATE FUNCTION fn_ListarDisciplinasAprovadas(
+    p_ID_Aluno INT
+)
+RETURNS TEXT
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_Lista TEXT DEFAULT '';
+    DECLARE v_Nome VARCHAR(120);
+    DECLARE v_Nota DECIMAL(4,2);
+    DECLARE v_Data DATE;
+    DECLARE v_Fim BOOLEAN DEFAULT FALSE;
+
+    DECLARE cur CURSOR FOR
+        SELECT
+            d.NomeDisciplina,
+            h.NotaFinal,
+            h.DataConclusao
+        FROM HistoricoAluno h
+        JOIN Disciplinas d ON d.ID_Disciplina = h.ID_Disciplina
+        WHERE h.ID_Aluno = p_ID_Aluno
+          AND h.Status = 'Aprovado'
+        ORDER BY h.DataConclusao;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_Fim = TRUE;
+
+    -- Aluno existe?
+    IF NOT EXISTS (SELECT 1 FROM Alunos WHERE ID_Aluno = p_ID_Aluno) THEN
+        RETURN 'ERRO: Aluno não encontrado.';
+    END IF;
+
+    OPEN cur;
+
+    leitura: LOOP
+        FETCH cur INTO v_Nome, v_Nota, v_Data;
+
+        IF v_Fim THEN
+            LEAVE leitura;
+        END IF;
+
+        -- Monta linha por linha
+        SET v_Lista = CONCAT(v_Lista,
+            '| ', v_Nome,
+            ' | Nota: ', v_Nota,
+            ' | Concluída: ', v_Data,
+            ' |', '\n'
+        );
+    END LOOP;
+
+    CLOSE cur;
+
+    -- Nenhuma disciplina aprovada
+    IF v_Lista = '' THEN
+        RETURN 'Aluno não possui disciplinas aprovadas.';
+    END IF;
+
+    RETURN v_Lista;
+END$$
+
+DELIMITER ;
+
+------------------------------------------
+
+DELIMITER $$
+
+CREATE FUNCTION fn_TotalHorasConcluidas(
+    p_ID_Aluno INT
+)
+RETURNS INT
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_TotalHoras INT;
+
+    -- Aluno existe?
+    IF NOT EXISTS (SELECT 1 FROM Alunos WHERE ID_Aluno = p_ID_Aluno) THEN
+        RETURN -1;  -- Sinaliza erro
+    END IF;
+
+    -- Soma carga horária das disciplinas aprovadas
+    SELECT IFNULL(SUM(d.CargaHoraria), 0)
+    INTO v_TotalHoras
+    FROM HistoricoAluno h
+    JOIN Disciplinas d ON d.ID_Disciplina = h.ID_Disciplina
+    WHERE h.ID_Aluno = p_ID_Aluno
+      AND h.Status   = 'Aprovado';
+
+    RETURN v_TotalHoras;
+END$$
+
+DELIMITER ;
+
+------------------------------------------
+
+DELIMITER $$
+
+CREATE TRIGGER trg_AtualizarContagemVagas
+AFTER INSERT ON Matriculas
+FOR EACH ROW
+BEGIN
+    UPDATE Turmas
+    SET VagasOcupadas = VagasOcupadas + 1
+    WHERE ID_Turma = NEW.ID_Turma;
+END$$
+
+DELIMITER ;
+
+------------------------------------------
+
+DELIMITER $$
+
+CREATE TRIGGER trg_AuditoriaAluno
+AFTER UPDATE ON Alunos
+FOR EACH ROW
+BEGIN
+    IF OLD.Email <> NEW.Email THEN
+        INSERT INTO LogsSistema (Usuario, Acao, TabelaAfetada, Descricao)
+        VALUES (
+            CONCAT('Aluno#', OLD.ID_Aluno),
+            'UPDATE',
+            'Alunos',
+            CONCAT('Email alterado — De: "', OLD.Email,
+                   '" Para: "', NEW.Email, '"')
+        );
+    END IF;
+END$$
+
+DELIMITER ;
+
+------------------------------------------
+
+DELIMITER $$
+
+CREATE TRIGGER trg_AtualizarHistoricoAutomaticamente
+AFTER UPDATE ON Matriculas
+FOR EACH ROW
+BEGIN
+    DECLARE v_ID_Disciplina INT;
+
+    -- Só age se o status mudou para 'Aprovado'
+    IF OLD.Status <> 'Aprovado' AND NEW.Status = 'Aprovado' THEN
+
+        -- Busca a disciplina da turma
+        SELECT ID_Disciplina INTO v_ID_Disciplina
+        FROM Turmas
+        WHERE ID_Turma = NEW.ID_Turma;
+
+        -- Insere no histórico
+        INSERT INTO HistoricoAluno
+            (ID_Aluno, ID_Disciplina, NotaFinal, Status, DataConclusao)
+        VALUES
+            (NEW.ID_Aluno, v_ID_Disciplina, NEW.NotaFinal, 'Aprovado', CURDATE());
+
+    END IF;
+END$$
+
+DELIMITER ;
+
+------------------------------------------
+
+DELIMITER $$
+
+CREATE TRIGGER trg_AtualizarStatusAutomaticamente
+BEFORE INSERT ON Matriculas
+FOR EACH ROW
+BEGIN
+    DECLARE v_Conta INT;
+    DECLARE v_Semestre INT;
+
+    -- Busca o semestre da turma que o aluno quer entrar
+    SELECT ID_Semestre INTO v_Semestre
+    FROM Turmas
+    WHERE ID_Turma = NEW.ID_Turma;
+
+    -- Conta disciplinas 'Cursando' no mesmo semestre
+    SELECT COUNT(*) INTO v_Conta
+    FROM Matriculas m
+    JOIN Turmas t ON t.ID_Turma = m.ID_Turma
+    WHERE m.ID_Aluno = NEW.ID_Aluno
+      AND m.Status = 'Cursando'
+      AND t.ID_Semestre = v_Semestre;
+
+    -- Se já tiver 6 → bloqueia e registra
+    IF v_Conta >= 6 THEN
+
+        INSERT INTO LogsSistema (Usuario, Acao, TabelaAfetada, Descricao)
+        VALUES (
+            CONCAT('Aluno#', NEW.ID_Aluno),
+            'BLOQUEADO',
+            'Matriculas',
+            CONCAT('Tentativa bloqueada — Aluno: ', NEW.ID_Aluno,
+                   ' já possui 6 disciplinas ativas no semestre ', v_Semestre)
+        );
+
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'ERRO: Limite de 6 disciplinas por semestre atingido.';
+
+    END IF;
+END$$
+
+DELIMITER ;
+
+------------------------------------------
+
+Matricular aluno com e sem pré-requisitos
+Testar matrícula em disciplina que exige pré-requisito ainda não cursado (deve falhar).
+Testar matrícula em disciplina sem pré-requisitos (deve ser concluída com sucesso).
+
+INSERT INTO Cursos (NomeCurso, Coordenador, CargaHorariaTotal)
+VALUES ('Sistemas de Informação', 'Carlos Silva', 3000);
+
+INSERT INTO Alunos (Nome, CPF, Email, DataNascimento, ID_Curso)
+VALUES ('João Pedro', '12345678901', 'joao@email.com', '2000-05-10', 1);
+
+INSERT INTO Professores (Nome, Titulacao, Email)
+VALUES ('Maria Souza', 'Mestre', 'maria@email.com');
+
+INSERT INTO Semestres (CodigoSemestre, AbertoParaMatricula)
+VALUES ('2026.1', TRUE);
+
+INSERT INTO Semestres (CodigoSemestre, AbertoParaMatricula)
+VALUES ('2026.1', TRUE);
+
+INSERT INTO Disciplinas (NomeDisciplina, CargaHoraria)
+VALUES ('Lógica de Programação', 60);
+
+INSERT INTO Disciplinas (NomeDisciplina, CargaHoraria)
+VALUES ('Programação Avançada', 60);
+
+INSERT INTO PreRequisitos (ID_Disciplina_Principal, ID_Disciplina_PreRequisito)
+VALUES (2, 1);
+
+-- Turma de Lógica
+INSERT INTO Turmas (ID_Disciplina, ID_Professor, ID_Semestre, MaxVagas)
+VALUES (1, 1, 1, 30);
+
+-- Turma de Programação Avançada
+INSERT INTO Turmas (ID_Disciplina, ID_Professor, ID_Semestre, MaxVagas)
+VALUES (2, 1, 1, 30);
+
+CALL sp_RegistrarMatricula(1, 2);
+
+CALL sp_RegistrarMatricula(1, 1);
+
+CALL sp_LancarNotas(1, 8.5);
+
+CALL sp_RegistrarMatricula(1, 2);
+
+------------------------------------------
+
+Simular falta de vaga e verificar rollback
+Tentar matricular um aluno quando a turma já está cheia (esperar ROLLBACK e mensagem de erro).
+
+
+INSERT INTO Turmas (ID_Disciplina, ID_Professor, ID_Semestre, MaxVagas)
+VALUES (1, 1, 1, 1);
+
+INSERT INTO Alunos (Nome, CPF, Email, DataNascimento, ID_Curso)
+VALUES 
+('Aluno 1', '11111111111', 'a1@email.com', '2000-01-01', 1),
+('Aluno 2', '22222222222', 'a2@email.com', '2000-01-01', 1);
+
+CALL sp_RegistrarMatricula(2, 3);
+
+CALL sp_RegistrarMatricula(3, 3);
+
+SELECT * FROM Matriculas WHERE ID_Turma = 3; (Comprova apenas 1 registro)
+
+SELECT MaxVagas, VagasOcupadas FROM Turmas WHERE ID_Turma = 3; (Verifica as vagas)
+
+SELECT * FROM LogsSistema ORDER BY ID_Log DESC; (Verifica o log)
+
+------------------------------------------
+
+Trancar matrícula e conferir decremento de vaga
+Trancar uma matrícula ativa e confirmar se o campo VagasOcupadas da turma foi decrementado corretamente.
+
+SELECT ID_Matricula, ID_Turma, Status FROM Matriculas;
+
+SELECT ID_Turma, MaxVagas, VagasOcupadas FROM Turmas WHERE ID_Turma = 1;
+
+CALL sp_TrancarMatricula(6, 'Aluno#1');
+
+SELECT ID_Matricula, Status FROM Matriculas WHERE ID_Matricula = 6;
+
+SELECT VagasOcupadas FROM Turmas WHERE ID_Turma = (SELECT ID_Turma FROM Matriculas WHERE ID_Matricula = 6);
+
+------------------------------------------
+
+Gerar histórico de aluno e verificar consistência
+Executar sp_GerarHistoricoAluno e confirmar se apenas disciplinas aprovadas foram registradas.
+
+INSERT INTO Turmas (ID_Disciplina, ID_Professor, ID_Semestre, MaxVagas)
+VALUES (1, 1, 1, 5);
+
+SELECT * FROM Turmas ORDER BY ID_Turma DESC;
+
+CALL sp_RegistrarMatricula(5, 4);
+
+SELECT * FROM Matriculas ORDER BY ID_Matricula DESC;
+
+CALL sp_LancarNotas(15, 8.5);
+
+CALL sp_GerarHistoricoAluno(5);
+
+------------------------------------------
+
+Consultar vw_DesempenhoTurma e validar médias
+Confirmar cálculo da média de notas, aprovados e reprovados por turma.
+
+SELECT * FROM vw_DesempenhoTurma;
+
+------------------------------------------
+
+Executar funções de retorno (OUT)
+fn_CalcularCoeficienteRendimento → verificar o coeficiente de desempenho de um aluno.
+fn_ContarDisciplinasPendentes → confirmar número correto de disciplinas restantes.
+fn_ListarDisciplinasAprovadas → retornar disciplinas concluídas com sucesso.
+fn_TotalHorasConcluidas → validar soma da carga horária das disciplinas aprovadas.
+
+SELECT 
+    fn_CalcularCoeficienteRendimento(5) AS CR,
+    fn_ContarDisciplinasPendentes(5, 1) AS Pendentes,
+    fn_ListarDisciplinasAprovadas(5) AS Disciplinas,
+    fn_TotalHorasConcluidas(5) AS TotalHoras;
+
+------------------------------------------
+Verificar logs de operações
+Após executar INSERT, UPDATE e DELETE em tabelas principais, consultar vw_LogAuditoria e confirmar se os registros foram criados.
+
+SELECT * FROM vw_LogAuditoria;
+
+------------------------------------------
