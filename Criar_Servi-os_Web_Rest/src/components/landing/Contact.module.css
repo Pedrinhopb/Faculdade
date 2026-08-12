@@ -1,0 +1,24 @@
+/* Contato — sempre fundo escuro por design */
+.section { padding: 90px 5%; background: #0a0f0c; color: #fff; }
+.content { max-width: 1200px; margin: 0 auto; }
+.label { color: #22a860; text-transform: uppercase; letter-spacing: 2px; font-size: 12px; font-weight: 600; }
+.title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(28px, 3.5vw, 42px); color: #fff; margin: 12px 0; }
+.subtitle { color: rgba(255,255,255,0.45); max-width: 620px; line-height: 1.7; margin-bottom: 32px; font-size: 16px; }
+.grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; }
+.form { display: grid; gap: 16px; }
+.fieldLabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: rgba(255,255,255,0.5); margin-bottom: 6px; display: block; }
+.input, .textarea { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 13px 16px; color: #fff; font-size: 14px; width: 100%; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+.input::placeholder, .textarea::placeholder { color: rgba(255,255,255,0.25); }
+.input:focus, .textarea:focus { border-color: #22a860; box-shadow: 0 0 0 3px rgba(34,168,96,0.15); }
+.textarea { min-height: 140px; resize: vertical; }
+.submit { width: 100%; padding: 14px; border: none; border-radius: 10px; background: #1a7a4a; color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s, transform 0.15s; }
+.submit:hover { background: #22a860; transform: translateY(-1px); }
+.toast { margin-top: 10px; color: #6ee7b7; font-weight: 500; font-size: 14px; }
+.infoBox { display: grid; gap: 20px; }
+.infoBox h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 22px; color: #fff; margin: 0 0 4px; }
+.infoItem { display: flex; align-items: flex-start; gap: 14px; padding: 18px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; }
+.infoIcon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(26,122,74,0.3); border-radius: 10px; font-size: 18px; flex-shrink: 0; }
+.infoText strong { display: block; color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.infoText p { margin: 0; color: rgba(255,255,255,0.55); font-size: 14px; }
+@media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .section { padding: 64px 5%; } }

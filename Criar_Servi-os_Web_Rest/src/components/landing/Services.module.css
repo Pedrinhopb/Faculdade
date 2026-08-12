@@ -1,0 +1,161 @@
+.section {
+  padding: 80px 5% 90px;
+  background: var(--bg-card);
+  transition: background 0.3s;
+}
+
+/* números impactantes */
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 0;
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 72px;
+  max-width: 1160px;
+  margin-left: auto;
+  margin-right: auto;
+  background: var(--bg-page);
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.numberItem {
+  padding: 32px 28px;
+  border-right: 1px solid var(--borda);
+  transition: background 0.2s;
+}
+.numberItem:last-child { border-right: none; }
+.numberItem:hover { background: var(--verde-palido); }
+
+.numberValue {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 800;
+  color: var(--verde);
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.numberLabel {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  transition: color 0.3s;
+}
+
+/* cabeçalho */
+.head { max-width: 720px; margin: 0 auto 52px; text-align: center; }
+
+.label {
+  display: inline-block;
+  color: var(--verde);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.head h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 3.5vw, 44px);
+  color: var(--text-title);
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin: 0 0 12px;
+  transition: color 0.3s;
+}
+
+.headSub {
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  transition: color 0.3s;
+}
+
+/* grid de cards */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 20px;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.card {
+  position: relative;
+  background: var(--bg-page);
+  border: 1.5px solid var(--borda);
+  border-radius: 16px;
+  padding: 28px;
+  overflow: hidden;
+  cursor: default;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s, background 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.10);
+  border-color: var(--accent, var(--verde));
+  background: var(--bg-card);
+}
+
+/* brilho no hover */
+.cardGlow {
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: var(--accent, var(--verde));
+  opacity: 0;
+  filter: blur(40px);
+  transition: opacity 0.35s;
+  pointer-events: none;
+}
+.card:hover .cardGlow { opacity: 0.12; }
+
+.icon {
+  width: 48px; height: 48px;
+  background: var(--verde-palido);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  margin-bottom: 18px;
+  transition: transform 0.25s;
+}
+.card:hover .icon { transform: scale(1.12) rotate(-4deg); }
+
+.card h3 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 17px;
+  color: var(--text-title);
+  margin-bottom: 8px;
+  transition: color 0.3s;
+}
+
+.card p {
+  font-size: 14px; color: var(--text-muted);
+  line-height: 1.65; margin: 0;
+  transition: color 0.3s;
+}
+
+.cardArrow {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  background: var(--verde-palido);
+  border-radius: 50%;
+  font-size: 14px; color: var(--verde);
+  margin-top: 16px;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+.card:hover .cardArrow { opacity: 1; transform: translateX(0); }
+
+/* responsivo */
+@media (max-width: 1024px) { .numbers { grid-template-columns: repeat(2,1fr); } .numberItem { border-right: none; border-bottom: 1px solid var(--borda); } .numberItem:nth-child(odd) { border-right: 1px solid var(--borda); } .numberItem:nth-last-child(-n+2) { border-bottom: none; } }
+@media (max-width: 980px) { .grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 640px) { .grid { grid-template-columns: 1fr; } .numbers { grid-template-columns: 1fr 1fr; } .section { padding: 64px 5%; } }

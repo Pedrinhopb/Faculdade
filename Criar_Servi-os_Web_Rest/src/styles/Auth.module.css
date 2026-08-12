@@ -1,0 +1,135 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: #0a0f0c;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+/* No tema claro, a página de auth mantém fundo escuro por design */
+[data-theme="light"] .page { background: #0a0f0c; }
+[data-theme="dark"]  .page { background: #050a06; }
+
+.decorCircleTop {
+  position: absolute;
+  width: 360px; height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(34,168,96,0.14), transparent 50%);
+  top: -80px; left: -120px;
+  pointer-events: none;
+}
+
+.decorCircleBottom {
+  position: absolute;
+  width: 360px; height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(34,168,96,0.09), transparent 50%);
+  bottom: -80px; right: -120px;
+  pointer-events: none;
+}
+
+.card {
+  width: 420px;
+  max-width: 90vw;
+  padding: 40px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  position: relative;
+  z-index: 1;
+}
+
+.brand { text-align: center; margin-bottom: 8px; }
+.brandStrong { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px; }
+.brandStock { color: #22a860; }
+.brandEasy  { color: rgba(255,255,255,0.7); margin-left: 4px; }
+
+.title    { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 22px; color: #fff; text-align: center; margin-bottom: 4px; }
+.subtitle { color: rgba(255,255,255,0.45); margin-bottom: 28px; text-align: center; font-size: 14px; }
+
+.field    { margin-bottom: 14px; position: relative; }
+.label    { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: rgba(255,255,255,0.5); }
+
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input::placeholder { color: rgba(255,255,255,0.25); }
+.input:focus { border-color: #22a860; box-shadow: 0 0 0 3px rgba(34,168,96,0.15); }
+.inputError { border-color: rgba(231,76,60,0.6) !important; }
+
+.eyeBtn {
+  position: absolute;
+  right: 10px; top: 38px;
+  background: none; border: none;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer; font-size: 16px;
+  padding: 4px; border-radius: 6px;
+  transition: color 0.2s;
+}
+.eyeBtn:hover { color: rgba(255,255,255,0.9); }
+
+.forgot { text-align: right; margin-top: 6px; font-size: 12px; }
+.forgot a { color: #22a860; text-decoration: none; }
+.forgot a:hover { text-decoration: underline; }
+
+.fieldError { font-size: 12px; color: #f87171; margin-top: 4px; }
+
+.error {
+  background: rgba(231,76,60,0.12);
+  border: 1px solid rgba(231,76,60,0.25);
+  color: #f87171;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+.btnPrimary {
+  width: 100%;
+  padding: 13px;
+  background: #1a7a4a;
+  color: #fff;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 15px;
+  transition: background 0.2s, transform 0.15s;
+}
+.btnPrimary:hover    { background: #22a860; transform: translateY(-1px); }
+.btnPrimary.disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+.footerText { margin-top: 20px; text-align: center; font-size: 14px; color: rgba(255,255,255,0.45); }
+.link       { color: #22a860; font-weight: 500; margin-left: 4px; }
+.link:hover { text-decoration: underline; }
+
+/* Barra de força da senha */
+.strength      { display: flex; gap: 6px; align-items: center; margin-top: 8px; }
+.strengthBar   { height: 6px; flex: 1; display: flex; gap: 4px; }
+.seg           { flex: 1; background: rgba(255,255,255,0.08); border-radius: 3px; transition: background 0.3s; }
+.seg.on.red       { background: #e74c3c; }
+.seg.on.amber     { background: #f59e0b; }
+.seg.on.green     { background: #22a860; }
+.seg.on.greenDark { background: #1a7a4a; }
+.strengthLabel { font-size: 12px; color: rgba(255,255,255,0.55); min-width: 72px; text-align: right; }
+
+/* Checkbox */
+.checkboxRow { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 18px; cursor: pointer; }
+.checkboxRow input { margin-top: 2px; accent-color: #1a7a4a; width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
+.checkboxLabel { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+.checkboxLabel a { color: #22a860; }

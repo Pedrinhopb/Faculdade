@@ -1,0 +1,26 @@
+.footer { background: #060d08; }
+
+.top { max-width: 1200px; margin: 0 auto; padding: 56px 24px 48px; display: flex; gap: 48px; flex-wrap: wrap; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.07); }
+
+.brand { flex: 1.5; min-width: 200px; }
+.logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; margin-bottom: 12px; }
+.stock { color: #22a860; }
+.easy  { color: rgba(255,255,255,0.65); }
+.tagline { font-size: 14px; color: rgba(255,255,255,0.35); line-height: 1.6; max-width: 220px; margin: 0 0 20px; }
+.socials { display: flex; gap: 8px; }
+.socialBtn { width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 16px; text-decoration: none; transition: background 0.2s, border-color 0.2s, transform 0.2s; }
+.socialBtn:hover { background: rgba(34,168,96,0.15); border-color: rgba(34,168,96,0.3); transform: translateY(-2px); }
+
+.col { flex: 1; min-width: 130px; }
+.colTitle { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.35); margin: 0 0 16px; }
+.colLinks { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.colLinks a { font-size: 14px; color: rgba(255,255,255,0.35); text-decoration: none; transition: color 0.2s; }
+.colLinks a:hover { color: #22a860; }
+.hours { font-size: 14px; color: rgba(255,255,255,0.25); }
+
+.bottom { max-width: 1200px; margin: 0 auto; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.copy { font-size: 13px; color: rgba(255,255,255,0.2); }
+.made { font-size: 13px; color: rgba(255,255,255,0.2); }
+
+@media (max-width: 768px) { .brand { flex: 100%; } .col { flex: 1; min-width: 120px; } .bottom { flex-direction: column; align-items: flex-start; } }
+@media (max-width: 480px) { .col { flex: 100%; } }

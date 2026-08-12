@@ -1,0 +1,150 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  background: var(--navbar-bg);
+  border-bottom: 1px solid var(--navbar-border);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.scrolled {
+  box-shadow: 0 4px 24px var(--navbar-shadow);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.brand {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
+}
+
+.stock { color: var(--verde); }
+.easy  { color: var(--text-title); }
+
+.links {
+  display: flex;
+  gap: 28px;
+  flex: 1;
+  justify-content: center;
+}
+
+.links a {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--verde);
+  border-radius: 2px;
+  transition: width 0.25s ease;
+}
+
+.links a:hover { color: var(--verde); }
+.links a:hover::after { width: 100%; }
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* ============================
+   BOTÃO DE TEMA — bem visível
+   ============================ */
+.themeBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-page);
+  border: 1.5px solid var(--borda);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--text-body);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  white-space: nowrap;
+}
+
+.themeBtn:hover {
+  border-color: var(--verde);
+  background: var(--verde-palido);
+  transform: translateY(-1px);
+}
+
+.themeBtnIcon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.themeBtnLabel {
+  font-size: 13px;
+}
+
+.registerButton {
+  background: transparent;
+  color: var(--verde);
+  border: 1.5px solid var(--verde);
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.registerButton:hover {
+  background: var(--verde-palido);
+  transform: translateY(-1px);
+}
+
+.loginButton {
+  background: var(--verde);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.loginButton:hover {
+  background: var(--verde-claro);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(26,122,74,0.3);
+}
+
+@media (max-width: 768px) {
+  .links         { display: none; }
+  .registerButton{ display: none; }
+  .themeBtnLabel { display: none; }
+  .themeBtn      { padding: 6px 10px; }
+}

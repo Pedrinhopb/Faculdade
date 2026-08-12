@@ -1,0 +1,76 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-body);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+h1,h2,h3,h4,h5,h6 { font-family: 'Syne', sans-serif; font-weight: 800; }
+button, input, select, textarea { font-family: 'DM Sans', sans-serif; }
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+
+/* =====================
+   TEMA CLARO (padrão)
+   ===================== */
+:root,
+[data-theme="light"] {
+  --verde:           #1a7a4a;
+  --verde-claro:     #22a860;
+  --verde-palido:    #e6f5ee;
+  --borda:           #d0e6d8;
+
+  --bg-page:         #f4f6f8;
+  --bg-card:         #ffffff;
+  --bg-sidebar:      #ffffff;
+  --bg-header:       #0f1a14;
+  --bg-input:        #ffffff;
+  --bg-table-even:   #f9fbf9;
+  --bg-table-hover:  #f0f7f3;
+  --bg-tab-active:   #e6f5ee;
+
+  --text-title:      #0f1a14;
+  --text-body:       #1c2b22;
+  --text-muted:      #5a7566;
+  --text-invert:     #ffffff;
+
+  --navbar-bg:       rgba(255,255,255,0.88);
+  --navbar-border:   #d0e6d8;
+  --navbar-shadow:   rgba(15,26,20,0.07);
+
+  --shadow-card:     0 4px 24px rgba(15,26,20,0.06);
+  --shadow-modal:    0 24px 80px rgba(0,0,0,0.15);
+}
+
+/* =====================
+   TEMA ESCURO
+   ===================== */
+[data-theme="dark"] {
+  --verde:           #22a860;
+  --verde-claro:     #2ecc77;
+  --verde-palido:    rgba(34,168,96,0.15);
+  --borda:           rgba(255,255,255,0.10);
+
+  --bg-page:         #0a0f0c;
+  --bg-card:         #111a14;
+  --bg-sidebar:      #0d1510;
+  --bg-header:       #060d08;
+  --bg-input:        #162019;
+  --bg-table-even:   #0f1a12;
+  --bg-table-hover:  #152018;
+  --bg-tab-active:   rgba(34,168,96,0.12);
+
+  --text-title:      #e8f5ee;
+  --text-body:       #c8ddd0;
+  --text-muted:      #7a9e88;
+  --text-invert:     #0f1a14;
+
+  --navbar-bg:       rgba(10,15,12,0.95);
+  --navbar-border:   rgba(255,255,255,0.08);
+  --navbar-shadow:   rgba(0,0,0,0.4);
+
+  --shadow-card:     0 4px 24px rgba(0,0,0,0.3);
+  --shadow-modal:    0 24px 80px rgba(0,0,0,0.6);
+}
